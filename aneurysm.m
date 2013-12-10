@@ -22,7 +22,7 @@ function varargout = aneurysm(varargin)
 
 % Edit the above text to modify the response to help aneurysm
 
-% Last Modified by GUIDE v2.5 10-Dec-2013 14:54:36
+% Last Modified by GUIDE v2.5 10-Dec-2013 15:31:58
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -59,7 +59,7 @@ handles.output = hObject;
 guidata(hObject, handles);
 
 % UIWAIT makes aneurysm wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+% uiwait(handles.window);
 
 
 % --- Outputs from this function are returned to the command line.
@@ -71,3 +71,10 @@ function varargout = aneurysm_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+
+
+% --- Executes on button press in pushbutton1.
+function pushbutton1_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
