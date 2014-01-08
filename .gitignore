@@ -1,2 +1,5 @@
 # ignore .dcm files
 *.dcm
+
+# ingore swap files
+*~
