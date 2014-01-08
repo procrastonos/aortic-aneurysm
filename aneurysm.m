@@ -22,7 +22,7 @@ function varargout = aneurysm(varargin)
 
 % Edit the above text to modify the response to help aneurysm
 
-% Last Modified by GUIDE v2.5 10-Dec-2013 15:31:58
+% Last Modified by GUIDE v2.5 08-Jan-2014 14:45:20
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -73,8 +73,101 @@ function varargout = aneurysm_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
-% --- Executes on button press in pushbutton1.
-function pushbutton1_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton1 (see GCBO)
+% --- Executes on button press in SegmentBtn.
+function SegmentBtn_Callback(hObject, eventdata, handles)
+% hObject    handle to SegmentBtn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+handles = guidata(findobj('Tag','window'));
+
+val = get(handles.ImgSlider,'Value');
+
+im = handles.img(:,:,1);
+
+tr = val * max(im(:));
+
+img_tr = im;
+img_tr(im <= tr) = 0;
+
+axes(handles.ResImg);
+imshow(img_tr, []);
+
+guidata(hObject, handles);
+
+
+% --- Executes on slider movement.
+function ImgSlider_Callback(hObject, eventdata, handles)
+% hObject    handle to ImgSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+% --- Executes during object creation, after setting all properties.
+function ImgSlider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ImgSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+% --- Executes on button press in ImportBtn.
+function ImportBtn_Callback(hObject, eventdata, handles)
+% hObject    handle to ImportBtn (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles = guidata(findobj('Tag', 'window'));
+
+% get the folder where the image series is located
+folder = uigetdir('./data/', 'Select folder');
+files = dir(fullfile(folder, '*.dcm'));
+
+img = [];
+pinfo = [];
+
+% read images
+for k=180:210 % TODO size(files, 1)
+    filename = files(k,1).name;
+    tmp = dicomread(fullfile(folder, filename));
+    tmpinfo = dicominfo(fullfile(folder, filename));
+    img = cat(3, img, tmp);
+    pinfo = cat(1, pinfo, tmpinfo);
+end
+
+% create handle for images and info
+handles.img = img;
+handles.pinfo = pinfo;
+
+% select axes to use
+axes(handles.OrigImg);
+
+% select an image to choose
+im = img(:,:,1);
+% show image
+imshow(im, []);
+
+% activate GUI elements
+set(handles.SegmentBtn, 'Enable', 'on');
+set(handles.ImgSlider, 'Enable', 'on');
+
+% set GUI parameters
+%set(handles.ImgSlider, 'SliderStep', [01 1] / 20 - 1) % max - min
+
+% update handle structure
+guidata(hObject, handles);
+
+
+% --- Executes on scroll wheel click while the figure is in focus.
+function window_WindowScrollWheelFcn(hObject, eventdata, handles)
+% hObject    handle to window (see GCBO)
+% eventdata  structure with the following fields (see FIGURE)
+%	VerticalScrollCount: signed integer indicating direction and number of clicks
+%	VerticalScrollAmount: number of lines scrolled for each click
+% handles    structure with handles and user data (see GUIDATA)
+
+% scroll through images here
