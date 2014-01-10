@@ -55,6 +55,7 @@ function aneurysm_Jan_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for aneurysm_Jan
 handles.output = hObject;
 handles.imCount = 1;
+handles.sensitivity = 0;
 
 % Update handles structure
 guidata(hObject, handles);
@@ -291,8 +292,8 @@ function sensitivity_InputText_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of sensitivity_InputText as text
 %        str2double(get(hObject,'String')) returns contents of sensitivity_InputText as a double
 sensitivity = str2double(get(hObject, 'String'));
+handles.sensitivity = sensitivity;
 handles.sensitivity = sensitivity
-guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function sensitivity_InputText_CreateFcn(hObject, eventdata, handles)
@@ -305,4 +306,3 @@ function sensitivity_InputText_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-handles.sensitivity = 0;
