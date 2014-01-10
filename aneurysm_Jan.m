@@ -218,6 +218,7 @@ function dilation_Button_Callback(hObject, eventdata, handles)
 % hObject    handle to dilation_Button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+% 2D dilation
 img = handles.img;
 tr = handles.tr;
 se = strel('disk', 1);
@@ -281,7 +282,14 @@ function erosion_Button_Callback(hObject, eventdata, handles)
 % hObject    handle to erosion_Button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+% 3D erosion
+img = handles.img;
+se3(:,:,1)=[0 0 0;0 1 0;0 0 0];
+se3(:,:,2)=[0 1 0;1 1 1;0 1 0];
+se3(:,:,3)=[0 0 0;0 1 0;0 0 0];
 
+img_er3 = imerode(img,se3);
+figure; imshow(img_er3, []);
 
 
 function sensitivity_InputText_Callback(hObject, eventdata, handles)
