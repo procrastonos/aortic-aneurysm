@@ -22,7 +22,7 @@ function varargout = aneurysm_Jan(varargin)
 
 % Edit the above text to modify the response to help aneurysm_Jan
 
-% Last Modified by GUIDE v2.5 10-Jan-2014 12:44:13
+% Last Modified by GUIDE v2.5 10-Jan-2014 13:19:25
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -98,7 +98,7 @@ function read_Button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % av_files = dir(fullfile(path,'*.dcm'));
 % read DICOM image
-[file, path]=uigetfile('C:\Users\JanHenric\SkyDrive\Uni\Übungen\S5\MedBV\Aortic_aneurysm\4\*.dcm*','Select the file to read');
+[file, path]=uigetfile('C:\Users\JanHenric\SkyDrive\Uni\ï¿½bungen\S5\MedBV\Aortic_aneurysm\4\*.dcm*','Select the file to read');
 av_files = dir(fullfile(path,'*.dcm'));  
 img=dicomread(fullfile(path,file));    %to reactivate
 %img = imread(fullfile(path, file)); %to remove
@@ -173,7 +173,8 @@ function circle_Button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 img = handles.img;
 sensitivity = handles.sensitivity
-[centers,radii] = imfindcircles(img, [30 45],'Sensitivity',sensitivity);
+radius = handles.radius
+[centers,radii] = imfindcircles(img, [radius - 8 radius + 8],'Sensitivity',sensitivity);
 set(handles.center_Text, 'String', centers);
 axes(handles.axes1);
 imshow(img, []);
@@ -306,3 +307,28 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 handles.sensitivity = 0;
+
+
+
+function radius_InputText_Callback(hObject, eventdata, handles)
+% hObject    handle to radius_InputText (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of radius_InputText as text
+%        str2double(get(hObject,'String')) returns contents of radius_InputText as a double
+radius = str2double(get(hObject, 'String'));
+handles.radius = radius
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function radius_InputText_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to radius_InputText (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
