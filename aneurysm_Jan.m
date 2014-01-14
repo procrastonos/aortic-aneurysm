@@ -22,7 +22,7 @@ function varargout = aneurysm_Jan(varargin)
 
 % Edit the above text to modify the response to help aneurysm_Jan
 
-% Last Modified by GUIDE v2.5 13-Jan-2014 14:19:34
+% Last Modified by GUIDE v2.5 14-Jan-2014 10:40:47
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -74,9 +74,9 @@ function varargout = aneurysm_Jan_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
-% --- Executes on button press in pushbutton1.
-function pushbutton1_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton1 (see GCBO)
+% --- Executes on button press in next_Button.
+function next_Button_Callback(hObject, eventdata, handles)
+% hObject    handle to next_Button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 av_files2 = handles.av_files;
@@ -98,7 +98,7 @@ function read_Button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % av_files = dir(fullfile(path,'*.dcm'));
 % read DICOM image
-[file, path]=uigetfile('C:\Users\JanHenric\SkyDrive\Uni\�bungen\S5\MedBV\Aortic_aneurysm\4\*.dcm*','Select the file to read');
+[file, path]=uigetfile('C:\Users\JanHenric\SkyDrive\Uni\Uebungen\S5\MedBV\Aortic_aneurysm\4\*.dcm*','Select the file to read');
 av_files = dir(fullfile(path,'*.dcm'));  
 img=dicomread(fullfile(path,file));    %to reactivate
 %img = imread(fullfile(path, file)); %to remove
@@ -118,6 +118,8 @@ set(handles.dilation_Button, 'Enable', 'on');
 set(handles.goto_Button, 'Enable', 'on');
 set(handles.edge_Button, 'Enable', 'on');
 set(handles.distance_Button, 'Enable', 'on');
+set(handles.erosion_Button, 'Enable', 'on');
+set(handles.next_Button, 'Enable', 'on');
 guidata(hObject, handles);
 %%
 
@@ -143,8 +145,6 @@ function labeling_Button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 img = handles.img;
 [y,x] = ginput(1);
-set(handles.x_Text,'String',x);
-set(handles.y_Text,'String',y);
 
 gr = img(round(x), round(y));
 % global criteria
@@ -162,7 +162,9 @@ lab = bl(round(x),round(y));
 bll = bl;
 bll(bll~=lab)=0;
 bll(bll~=0)=1;
-figure; imshow(bll,[]);
+axes(handles.ResImg);
+imshow(bll, []);
+%figure; imshow(bll,[]);
 
 
 
@@ -172,10 +174,9 @@ function circle_Button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 img = handles.img;
-sensitivity = handles.sensitivity
-radius = handles.radius
+sensitivity = handles.sensitivity;
+radius = handles.radius;
 [centers,radii] = imfindcircles(img, [radius - 8 radius + 8],'Sensitivity',sensitivity);
-set(handles.center_Text, 'String', centers);
 axes(handles.OrigImg);
 imshow(img, []);
 viscircles(centers,radii);
@@ -220,13 +221,24 @@ function dilation_Button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % 2D dilation
 img = handles.img;
-tr = handles.tr;
-se = strel('disk', 1);
-img(img <= tr) = 0;
-im_dl = imdilate(img,se);
+%tr = handles.tr;
+%se = strel('disk', 1);
+%img(img <= tr) = 0;
+%im_dl = imdilate(img,se);
+%axes(handles.OrigImg);
+%imshow(im_dl, []);
+%handles.img = im_dl;
+%guidata(hObject, handles);
+
+%3D dilation
+se3(:,:,1) = [0 0 0;0 1 0; 0 0 0];
+se3(:,:,2) = [0 1 0;1 1 1; 0 1 0];
+se3(:,:,3) = [0 0 0;0 1 0; 0 0 0];
+se3
+img_dl3 = imdilate(img, se3);
 axes(handles.OrigImg);
-imshow(im_dl, []);
-handles.img = im_dl;
+imshow(img_dl3, []);
+handles.img = im_dl3;
 guidata(hObject, handles);
 
 
@@ -272,9 +284,7 @@ function distance_Button_Callback(hObject, eventdata, handles)
 distanceX = max(x) - min(x);
 distanceY = max(y) - min(y);
 distance = sqrt(distanceX^2 + distanceY^2);
-set(handles.distanceX_Text, 'String', distanceX);
-set(handles.distanceY_Text, 'String', distanceY);
-set(handles.distance_Text, 'String', distance);
+set(handles.distance_EditText, 'String', distance);
 
 
 % --- Executes on button press in erosion_Button.
@@ -289,23 +299,27 @@ se3(:,:,2)=[0 1 0;1 1 1;0 1 0];
 se3(:,:,3)=[0 0 0;0 1 0;0 0 0];
 
 img_er3 = imerode(img,se3);
-figure; imshow(img_er3, []);
+axes(handles.OrigImg);
+imshow(img_er3, []);
+handles.img = img_er3;
+guidata(hObject, handles);
 
 
-function sensitivity_InputText_Callback(hObject, eventdata, handles)
-% hObject    handle to sensitivity_InputText (see GCBO)
+
+function sensitivity_Edit_Callback(hObject, eventdata, handles)
+% hObject    handle to sensitivity_Edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of sensitivity_InputText as text
-%        str2double(get(hObject,'String')) returns contents of sensitivity_InputText as a double
+% Hints: get(hObject,'String') returns contents of sensitivity_Edit as text
+%        str2double(get(hObject,'String')) returns contents of sensitivity_Edit as a double
 sensitivity = str2double(get(hObject, 'String'));
-handles.sensitivity = sensitivity
+handles.sensitivity = sensitivity;
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
-function sensitivity_InputText_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to sensitivity_InputText (see GCBO)
+function sensitivity_Edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to sensitivity_Edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -318,20 +332,20 @@ handles.sensitivity = 0;
 
 
 
-function radius_InputText_Callback(hObject, eventdata, handles)
-% hObject    handle to radius_InputText (see GCBO)
+function radius_Edit_Callback(hObject, eventdata, handles)
+% hObject    handle to radius_Edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of radius_InputText as text
-%        str2double(get(hObject,'String')) returns contents of radius_InputText as a double
+% Hints: get(hObject,'String') returns contents of radius_Edit as text
+%        str2double(get(hObject,'String')) returns contents of radius_Edit as a double
 radius = str2double(get(hObject, 'String'));
-handles.radius = radius
+handles.radius = radius;
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
-function radius_InputText_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to radius_InputText (see GCBO)
+function radius_Edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to radius_Edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
