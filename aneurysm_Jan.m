@@ -22,7 +22,7 @@ function varargout = aneurysm_Jan(varargin)
 
 % Edit the above text to modify the response to help aneurysm_Jan
 
-% Last Modified by GUIDE v2.5 10-Jan-2014 13:19:25
+% Last Modified by GUIDE v2.5 13-Jan-2014 14:19:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -104,7 +104,7 @@ img=dicomread(fullfile(path,file));    %to reactivate
 %img = imread(fullfile(path, file)); %to remove
 %img = rgb2gray(img);
 %pinfo=dicominfo(fullfile(path,file)); 
-axes(handles.axes1);
+axes(handles.OrigImg);
 imshow(img, []);
 handles.img=img;
 handles.av_files = av_files;
@@ -130,7 +130,7 @@ function threshold_Button_Callback(hObject, eventdata, handles)
 tr = handles.tr;
 trmask=handles.img;
 trmask(trmask<=tr)=0;
-axes(handles.axes1);
+axes(handles.OrigImg);
 imshow(trmask,[]);
 handles.img=trmask;
 guidata(hObject, handles);
@@ -156,7 +156,7 @@ data=zeros(size(img));
 data(img>=tr1&img<=tr2)=1;
 
 bl = bwlabeln(data, 4);
-axes(handles.axes1);
+axes(handles.OrigImg);
 imshow(bl, []);
 lab = bl(round(x),round(y));
 bll = bl;
@@ -176,7 +176,7 @@ sensitivity = handles.sensitivity
 radius = handles.radius
 [centers,radii] = imfindcircles(img, [radius - 8 radius + 8],'Sensitivity',sensitivity);
 set(handles.center_Text, 'String', centers);
-axes(handles.axes1);
+axes(handles.OrigImg);
 imshow(img, []);
 viscircles(centers,radii);
 handles.img = img;
@@ -224,7 +224,7 @@ tr = handles.tr;
 se = strel('disk', 1);
 img(img <= tr) = 0;
 im_dl = imdilate(img,se);
-axes(handles.axes1);
+axes(handles.OrigImg);
 imshow(im_dl, []);
 handles.img = im_dl;
 guidata(hObject, handles);
@@ -240,7 +240,7 @@ av_files = handles.av_files;
 path = handles.path;
 name = av_files(200,1).name;
 img = dicomread(fullfile(path, name));
-axes(handles.axes1);
+axes(handles.OrigImg);
 imshow(img, []);
 handles.imCount = 200;
 handles.img = img;
@@ -256,7 +256,7 @@ function edge_Button_Callback(hObject, eventdata, handles)
 img = handles.img;
 h = fspecial('Prewitt');
 imfil = filter2(h,img,'same');
-axes(handles.axes1);
+axes(handles.OrigImg);
 imshow(imfil, []);
 handles.img = imfil;
 guidata(hObject, handles);
