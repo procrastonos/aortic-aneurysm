@@ -109,7 +109,7 @@ function read_Button_Callback(hObject, eventdata, handles)
 % read DICOM image
 
 % get folder containing dicom series from user
-%folder = uigetdir('C:\Users\JanHenric\SkyDrive\Uni\Uebungen\S5\MedBV\Aortic_aneurysm\4\*.dcm*','Select folder');
+%folder = uigetdir('C:\Users\JanHenric\SkyDrive\Uni\Uebungen\S5\MedBV\Aortic_aneurysm\4\','Select folder');
 folder = uigetdir('./data/','Select folder');
 files = dir(fullfile(folder,'*.dcm'));
 
@@ -163,25 +163,7 @@ function threshold_Button_Callback(hObject, eventdata, handles)
 % hObject    handle to threshold_Button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% get threshold value
-tr = handles.tr;
-
-% select image
-trmask = handles.img(:, :, handles.imCount);
-
-% apply threshold
-trmask(trmask <= tr) = 0;
-
-% select axes
-axes(handles.ResImg);
-
-% show image
-imshow(trmask, []);
-
-% update handles
-handles.thresh = trmask;
-guidata(hObject, handles);
+threshold_Op(hObject, handles);
 
 
 % --- Executes on button press in labeling_Button.
@@ -259,7 +241,8 @@ function tr_Edit_Callback(hObject, eventdata, handles)
 tr = str2double(get(hObject, 'String'));
 
 % update handles
-handles.tr = tr * max(handles.img(:, :, handles.imCount));
+im = handles.img(:,:, handles.imCount);
+handles.tr = tr * max(im(:));
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -456,4 +439,25 @@ end
 
 % set initial radius
 handles.radius = 0;
+guidata(hObject, handles);
+
+% --- sets threshold of image
+function threshold_Op (hObject, handles)
+% get threshold value
+tr = handles.tr;
+
+% select image
+trmask = handles.img(:, :, handles.imCount);
+
+% apply threshold
+trmask(trmask <= tr) = 0;
+
+% select axes
+axes(handles.ResImg);
+
+% show image
+imshow(trmask, []);
+
+% update handles
+handles.thresh = trmask;
 guidata(hObject, handles);
