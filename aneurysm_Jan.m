@@ -109,8 +109,8 @@ function read_Button_Callback(hObject, eventdata, handles)
 % read DICOM image
 
 % get folder containing dicom series from user
-%folder = uigetdir('C:\Users\JanHenric\SkyDrive\Uni\Uebungen\S5\MedBV\Aortic_aneurysm\4\','Select folder');
-folder = uigetdir('./data/','Select folder');
+folder = uigetdir('C:\Users\JanHenric\SkyDrive\Uni\Uebungen\S5\MedBV\Aortic_aneurysm\4\','Select folder');
+%folder = uigetdir('./data/','Select folder');
 files = dir(fullfile(folder,'*.dcm'));
 
 % create handle for files (probably no longer needed though)
@@ -171,63 +171,17 @@ function labeling_Button_Callback(hObject, eventdata, handles)
 % hObject    handle to labeling_Button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+labeling_Op(hObject, handles);
 
-% select image
-im = handles.img(:, :, handles.imCount);
 
-% get user input
-[y,x] = ginput(1);
-
-% calculate pixel position of user input
-gr = im(round(x), round(y));
-
-% global criteria
-tr1 = gr-0.2*gr;
-tr2 = gr+0.2*gr;
-
-% perform the thresholding operation
-data = zeros(size(im));
-data(im >= tr1 & im <= tr2) = 1;
-
-% perform labeling
-bl = bwlabeln(data, 4);
-lab = bl(round(x), round(y));
-bll = bl;
-bll(bll ~= lab) =0;
-bll(bll ~= 0) =1;
-
-% select axes
-axes(handles.ResImg);
-
-% show image
-imshow(bll, []);
 
 % --- Executes on button press in circle_Button.
 function circle_Button_Callback(hObject, eventdata, handles)
 % hObject    handle to circle_Button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+circle_Op(hObject, handles);
 
-% select image
-im = handles.img(:, :, handles.imCount);
-
-% get sensitivity value
-sensitivity = handles.sensitivity;
-
-% get radius
-radius = handles.radius;
-
-% perform circle matching
-[centers,radii] = imfindcircles(im, [radius - 8 radius + 8], 'Sensitivity', sensitivity);
-
-% select axes
-axes(handles.ResImg);
-
-% show image
-imshow(im, []);
-
-% draw circles
-viscircles(centers, radii);
 
 function tr_Edit_Callback(hObject, eventdata, handles)
 % hObject    handle to tr_Edit (see GCBO)
@@ -266,37 +220,8 @@ function dilation_Button_Callback(hObject, eventdata, handles)
 % hObject    handle to dilation_Button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% 2D dilation
 
-% get image
-im = handles.img(:, :, handles.imCount);
-
-%tr = handles.tr;
-%se = strel('disk', 1);
-%img(img <= tr) = 0;
-%im_dl = imdilate(img,se);
-%axes(handles.OrigImg);
-%imshow(im_dl, []);
-%handles.img = im_dl;
-%guidata(hObject, handles);
-
-%3D dilation
-se3(:,:,1) = [0 0 0;0 1 0; 0 0 0];
-se3(:,:,2) = [0 1 0;1 1 1; 0 1 0];
-se3(:,:,3) = [0 0 0;0 1 0; 0 0 0];
-
-% dilate image
-img_dl3 = imdilate(im, se3);
-
-% select axes
-axes(handles.ResImg);
-
-% show image
-imshow(img_dl3, []);
-
-% update handles
-handles.img = im_dl3;
-guidata(hObject, handles);
+dilation_Op(hObject, handles);
 
 % --- Executes on button press in goto_Button.
 function goto_Button_Callback(hObject, eventdata, handles)
@@ -323,20 +248,7 @@ function edge_Button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% select image
-im = handles.img(:, :, handles.imCount);
-
-% select edge detection filter
-h = fspecial('Prewitt');
-
-% apply edge detection filter
-imfil = filter2(h, im, 'same');
-
-% select output axes
-axes(handles.ResImg);
-
-% show image
-imshow(imfil, []);
+edge_Op(hObject, handles);
 
 % --- Executes on button press in distance_Button.
 function distance_Button_Callback(hObject, eventdata, handles)
@@ -362,22 +274,7 @@ function erosion_Button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % 3D erosion
 
-% select image
-im = handles.img(:, :, handles.imCount);
-
-% create an erosion mask
-se3(:,:,1)=[0 0 0;0 1 0;0 0 0];
-se3(:,:,2)=[0 1 0;1 1 1;0 1 0];
-se3(:,:,3)=[0 0 0;0 1 0;0 0 0];
-
-% erode image
-img_er3 = imerode(im, se3);
-
-% select output axes
-axes(handles.ResImg);
-
-% show image
-imshow(img_er3, []);
+erosion_Op(hObject, handles);
 
 function sensitivity_Edit_Callback(hObject, eventdata, handles)
 % hObject    handle to sensitivity_Edit (see GCBO)
@@ -460,4 +357,124 @@ imshow(trmask, []);
 
 % update handles
 handles.thresh = trmask;
+guidata(hObject, handles);
+
+function labeling_Op (hObject, handles)
+% select image
+im = handles.img(:, :, handles.imCount);
+
+% get user input
+[y,x] = ginput(1);
+
+% calculate pixel position of user input
+gr = im(round(x), round(y));
+
+% global criteria
+tr1 = gr-0.2*gr;
+tr2 = gr+0.2*gr;
+
+% perform the thresholding operation
+data = zeros(size(im));
+data(im >= tr1 & im <= tr2) = 1;
+
+% perform labeling
+bl = bwlabeln(data, 4);
+lab = bl(round(x), round(y));
+bll = bl;
+bll(bll ~= lab) =0;
+bll(bll ~= 0) =1;
+
+% select axes
+axes(handles.ResImg);
+
+% show image
+imshow(bll, []);
+
+function circle_Op (hObject, handles)
+% select image
+im = handles.img(:, :, handles.imCount);
+
+% get sensitivity value
+sensitivity = handles.sensitivity;
+
+% get radius
+radius = handles.radius;
+
+% perform circle matching
+[centers,radii] = imfindcircles(im, [radius - 8 radius + 8], 'Sensitivity', sensitivity);
+
+% select axes
+axes(handles.ResImg);
+
+% show image
+imshow(im, []);
+
+% draw circles
+viscircles(centers, radii);
+
+function edge_Op (hObject, handles)
+% select image
+im = handles.img(:, :, handles.imCount);
+
+% select edge detection filter
+h = fspecial('Prewitt');
+
+% apply edge detection filter
+imfil = filter2(h, im, 'same');
+
+% select output axes
+axes(handles.ResImg);
+
+% show image
+imshow(imfil, []);
+
+function erosion_Op (hObject, handles)
+% select image
+im = handles.img(:, :, handles.imCount);
+
+% create an erosion mask
+se3(:,:,1)=[0 0 0;0 1 0;0 0 0];
+se3(:,:,2)=[0 1 0;1 1 1;0 1 0];
+se3(:,:,3)=[0 0 0;0 1 0;0 0 0];
+
+% erode image
+img_er3 = imerode(im, se3);
+
+% select output axes
+axes(handles.ResImg);
+
+% show image
+imshow(img_er3, []);
+
+function dilation_Op (hObject, handles)
+% 2D dilation
+
+% get image
+im = handles.img(:, :, handles.imCount);
+
+%tr = handles.tr;
+%se = strel('disk', 1);
+%img(img <= tr) = 0;
+%im_dl = imdilate(img,se);
+%axes(handles.OrigImg);
+%imshow(im_dl, []);
+%handles.img = im_dl;
+%guidata(hObject, handles);
+
+%3D dilation
+se3(:,:,1) = [0 0 0;0 1 0; 0 0 0];
+se3(:,:,2) = [0 1 0;1 1 1; 0 1 0];
+se3(:,:,3) = [0 0 0;0 1 0; 0 0 0];
+
+% dilate image
+img_dl3 = imdilate(im, se3);
+
+% select axes
+axes(handles.ResImg);
+
+% show image
+imshow(img_dl3, []);
+
+% update handles
+handles.img = img_dl3;
 guidata(hObject, handles);
