@@ -1,26 +1,26 @@
-function varargout = aneurysm_Jan(varargin)
-% ANEURYSM_JAN MATLAB code for aneurysm_Jan.fig
-%      ANEURYSM_JAN, by itself, creates a new ANEURYSM_JAN or raises the existing
+function varargout = aneurysm(varargin)
+% aneurysm MATLAB code for aneurysm.fig
+%      aneurysm, by itself, creates a new aneurysm or raises the existing
 %      singleton*.
 %
-%      H = ANEURYSM_JAN returns the handle to a new ANEURYSM_JAN or the handle to
+%      H = aneurysm returns the handle to a new aneurysm or the handle to
 %      the existing singleton*.
 %
-%      ANEURYSM_JAN('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in ANEURYSM_JAN.M with the given input arguments.
+%      aneurysm('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in aneurysm.M with the given input arguments.
 %
-%      ANEURYSM_JAN('Property','Value',...) creates a new ANEURYSM_JAN or raises the
+%      aneurysm('Property','Value',...) creates a new aneurysm or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before aneurysm_Jan_OpeningFcn gets called.  An
+%      applied to the GUI before aneurysm_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to aneurysm_Jan_OpeningFcn via varargin.
+%      stop.  All inputs are passed to aneurysm_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help aneurysm_Jan
+% Edit the above text to modify the response to help aneurysm
 
 % Last Modified by GUIDE v2.5 16-Jan-2014 09:20:35
 
@@ -28,8 +28,8 @@ function varargout = aneurysm_Jan(varargin)
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @aneurysm_Jan_OpeningFcn, ...
-                   'gui_OutputFcn',  @aneurysm_Jan_OutputFcn, ...
+                   'gui_OpeningFcn', @aneurysm_OpeningFcn, ...
+                   'gui_OutputFcn',  @aneurysm_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,26 +44,28 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before aneurysm_Jan is made visible.
-function aneurysm_Jan_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before aneurysm is made visible.
+function aneurysm_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to aneurysm_Jan (see VARARGIN)
+% varargin   command line arguments to aneurysm (see VARARGIN)
 
-% Choose default command line output for aneurysm_Jan
+% Choose default command line output for aneurysm
 handles.output = hObject;
+
+% set initial image number
 handles.imCount = 1;
 
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes aneurysm_Jan wait for user response (see UIRESUME)
+% UIWAIT makes aneurysm wait for user response (see UIRESUME)
 % uiwait(handles.window);
 
 % --- Outputs from this function are returned to the command line.
-function varargout = aneurysm_Jan_OutputFcn(hObject, eventdata, handles) 
+function varargout = aneurysm_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
