@@ -43,7 +43,6 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-
 % --- Executes just before aneurysm is made visible.
 function aneurysm_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -183,17 +182,28 @@ function next_Button_Callback(hObject, eventdata, handles)
 % get current image id
 imCount = handles.imCount;
 
-% get image
-im = handles.img(:, :, imCount + 1);
+% get images
+img = handles.img;
+
+% get number of images
+z = size(img, 3);
+
+if imCount == z
+    % wrap images at end
+    imCount = 1;
+else
+    % increase image count
+    imCount = imCount + 1;
+end
+
+% select image
+im = img(:,:,imCount);
 
 % select axes
 axes(handles.OrigImg);
 
 % show image
 imshow(im, []);
-
-% increase image count
-imCount = imCount + 1;
 
 % update handles
 handles.imCount = imCount;
@@ -261,21 +271,33 @@ function threshold_Button_Callback(hObject, eventdata, handles)
 % hObject    handle to threshold_Button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-threshold_Op(hObject, handles);
+
+% call threshold private function
+handles = threshold(handles);
+% update guidata
+guidata(hObject, handles);
 
 % --- Executes on button press in labeling_Button.
 function labeling_Button_Callback(hObject, eventdata, handles)
 % hObject    handle to labeling_Button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-labeling_Op(hObject, handles);
+
+% call labeling private function
+handles = labeling(handles);
+% update guidata
+guidata(hObject, handles);
 
 % --- Executes on button press in circle_Button.
 function circle_Button_Callback(hObject, eventdata, handles)
 % hObject    handle to circle_Button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-circle_Op(hObject, handles);
+
+% call circle finding private function
+handles = circle(handles);
+% update guidata
+guidata(hObject, handles);
 
 % --- Executes on button press in dilation_Button.
 function dilation_Button_Callback(hObject, eventdata, handles)
@@ -283,7 +305,10 @@ function dilation_Button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-dilation_Op(hObject, handles);
+% call dilation private function
+handles = dilation(handles);
+% update guidata
+guidata(hObject, handles);
 
 % --- Executes on button press in goto_Button.
 function goto_Button_Callback(hObject, eventdata, handles)
@@ -310,7 +335,10 @@ function edge_Button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-edge_Op(hObject, handles);
+% call edge detection private function
+handles = edge(handles);
+% update guidata
+guidata(hObject, handles);
 
 % --- Executes on button press in distance_Button.
 function distance_Button_Callback(hObject, eventdata, handles)
@@ -336,7 +364,10 @@ function erosion_Button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % 3D erosion
 
-erosion_Op(hObject, handles);
+% call erosion private function
+handles = erosion(handles);
+% update guidata
+guidata(hObject, handles);
 
 % --- Executes on button press in levelset_Button.
 function levelset_Button_Callback(hObject, eventdata, handles)
@@ -344,4 +375,7 @@ function levelset_Button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-levelset_Op(hObject, handles);
+% call level set private function
+handles = levelset(handles);
+% update guidata
+guidata(hObject, handles);
