@@ -14,58 +14,55 @@ range = maxv - minv;
 % convert image to double
 Img = double(im(:,:,1));
 % reduce value range to 0..256
-Img = ((Img - minv) / range) * 255;
+Img = round(((Img - minv) / range) * 255);
 
 % select axes
 axes(handles.ResImg);
-
 % show image
 imshow(Img, []);
 
 % get ROI from user
 rect = getrect;
-
 % crop image to ROI
 Img = imcrop(Img, rect);
 
-% parameter settings
+%% parameter settings
 
 % time step
-timestep = 1;
-
+timestep = 5;
 % coefficient of the distance regularization term R(phi)
 mu = 0.2 / timestep;
-
 % iterator settings
 iter_inner = 5;
-iter_outer = 20;
-
+iter_outer = 40;
 % coefficient of the weighted length term L(phi)
 lambda = 5;
 % coefficient of the weighted area term A(phi)
-alfa = -3;
+alfa = 1.5;
 % paramater that specifies the width of the DiracDelta function
 epsilon = 1.5;
-
 % scale parameter in Gaussian kernel
-sigma = 0.8;
+sigma = 1.5;
 % matrix size for kernel
 hsize = 15;
-% Caussian kernel
-G = fspecial('gaussian', hsize, sigma); 
+% potential well (single or double)
+potential = 2;  
 
-% smooth image by Gaussiin convolution
-Img_smooth = conv2(Img, G, 'same');
+%% DRLSE
 
 % select input image axis
 axes(handles.OrigImg);
 % show ROI
-imshow(Img_smooth, []);
+imshow(Img, []);
+
+% Gaussian kernel
+G = fspecial('gaussian', hsize, sigma); 
+% smooth image by Gaussiin convolution
+Img_smooth = conv2(Img, G, 'same');
 
 % some kind of gradient
 [Ix, Iy] = gradient(Img_smooth);
 f = Ix .^ 2 + Iy .^ 2;
-
 % edge indicator function.
 g = 1 ./ (1 + f);
 
@@ -87,22 +84,15 @@ initialLSF(round(rect(1)):round(rect(3)), ...
 % change back to result axis
 axes(handles.ResImg);
 
-%
+% initial 
 phi = initialLSF;
 
-% for a better view, the LSF is displayed upside down
-mesh(-phi);
-hold on;  contour(phi, [0,0], 'r','LineWidth',2);
-title('Initial level set function');
-view([-80 35]);
+% show initial zero level
+imagesc(Img, [0, 255]); axis off; axis equal; colormap(gray); hold on;  contour(phi, [0,0], 'r');
+title('Initial zero level contour');
 pause(1.0);
 
-% draw
-imagesc(Img,[0, 255]); axis off; axis equal; colormap(gray); hold on;  contour(phi, [0,0], 'r');
-title('Initial zero level contour');
-pause(0.5);
-
-potential=2;  
+% select potential well
 if potential ==1
     % use single well potential p1(s)=0.5*(s-1)^2, which is good for region-based model 
     potentialFunction = 'single-well';
@@ -119,6 +109,7 @@ for n=1:iter_outer
     phi = drlse_edge(phi, g, lambda, mu, alfa, epsilon, timestep, iter_inner, potentialFunction);    
     if mod(n,2)==0
         imagesc(Img,[0, 255]); axis off; axis equal; colormap(gray); hold on;  contour(phi, [0,0], 'r');
+        pause(0.1);
     end
 end
 
@@ -127,7 +118,7 @@ alfa=0;
 iter_refine = 10;
 phi = drlse_edge(phi, g, lambda, mu, alfa, epsilon, timestep, iter_inner, potentialFunction);
 
-finalLSF=phi;
+finalLSF = phi;
 
 imagesc(Img,[0, 255]); axis off; axis equal; colormap(gray); hold on;  contour(phi, [0,0], 'r');
 hold on;  contour(phi, [0,0], 'r');
@@ -135,6 +126,8 @@ str=['Final zero level contour, ', num2str(iter_outer*iter_inner+iter_refine), '
 title(str);
 
 % for a better view, the LSF is displayed upside down
+pause(1);
+figure;
 mesh(-finalLSF);
 hold on;  contour(phi, [0,0], 'r','LineWidth',2);
 view([-80 35]);
