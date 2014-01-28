@@ -22,7 +22,7 @@ function varargout = aneurysm(varargin)
 
 % Edit the above text to modify the response to help aneurysm
 
-% Last Modified by GUIDE v2.5 16-Jan-2014 09:20:35
+% Last Modified by GUIDE v2.5 28-Jan-2014 09:48:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -123,6 +123,23 @@ end
 handles.sensitivity = 0;
 guidata(hObject, handles);
 
+% --- Executes during object creation, after setting all properties.
+function goto_Edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to goto_Edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% set initial goto value
+handles.goto = 1;
+guidata(hObject, handles);
+
+
 %% Edit callbacks
 
 function radius_Edit_Callback(hObject, eventdata, handles)
@@ -134,7 +151,7 @@ function radius_Edit_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of radius_Edit as a double
 
 % get radius from input field
-radius = round(str2double(get(hObject, 'String')));
+radius = str2num(get(hObject, 'String'));
 
 % update handles
 handles.radius = radius;
@@ -171,6 +188,32 @@ sensitivity = str2double(get(hObject, 'String'));
 handles.sensitivity = sensitivity;
 guidata(hObject, handles);
 
+function goto_Edit_Callback(hObject, eventdata, handles)
+% hObject    handle to goto_Edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of goto_Edit as text
+%        str2double(get(hObject,'String')) returns contents of goto_Edit as a double
+
+% get image number from input field
+
+goto = str2num(get(hObject, 'String'));
+
+if goto > size(handles.files, 1)
+    goto = size(handles.files, 1);
+end
+if goto <= 0
+    goto = 1;
+end
+
+% show the value in the edit field
+set(hObject,'String',num2str(goto));
+
+% update handles
+handles.goto = goto;
+guidata(hObject, handles);
+
 %% Button callbacks
 
 % --- Executes on button press in next_Button.
@@ -179,34 +222,9 @@ function next_Button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% get current image id
-imCount = handles.imCount;
-
-% get images
-img = handles.img;
-
-% get number of images
-z = size(img, 3);
-
-if imCount == z
-    % wrap images at end
-    imCount = 1;
-else
-    % increase image count
-    imCount = imCount + 1;
-end
-
-% select image
-im = img(:,:,imCount);
-
-% select axes
-axes(handles.OrigImg);
-
-% show image
-imshow(im, []);
-
-% update handles
-handles.imCount = imCount;
+% call next image private function
+handles = next(handles);
+% update hObject with new handles
 guidata(hObject, handles);
 
 % --- Executes on button press in read_Button.
@@ -214,55 +232,9 @@ function read_Button_Callback(hObject, eventdata, handles)
 % hObject    handle to read_Button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% av_files = dir(fullfile(path,'*.dcm'));
-% read DICOM image
 
-% get folder containing dicom series from user
-folder = uigetdir('C:\Users\JanHenric\SkyDrive\Uni\Uebungen\S5\MedBV\Aortic_aneurysm\4\','Select folder');
-%folder = uigetdir('./data/','Select folder');
-files = dir(fullfile(folder,'*.dcm'));
-
-% create handle for files (probably no longer needed though)
-handles.files = files;
-
-img = [];
-pinfo = [];
-
-% read images
-for k = 198:202 % TODO size(files, 1)
-    filename = files(k, 1).name;
-    im = dicomread(fullfile(folder, filename));
-    pi = dicominfo(fullfile(folder, filename));
-    
-    img = cat(3, img, im);
-    pinfo = cat(1, pinfo, pi);
-end
-
-% create handle for images and patient info
-handles.img = img;
-handles.pinfo = pinfo;
-
-% select axes
-axes(handles.OrigImg);
-
-% select image
-im = img(:, :, 1);
-
-% show image
-imshow(im, []);
-
-% activate GUI elements
-set(handles.threshold_Button, 'Enable', 'on');
-set(handles.circle_Button, 'Enable', 'on');
-set(handles.labeling_Button, 'Enable', 'on');
-set(handles.dilation_Button, 'Enable', 'on');
-set(handles.goto_Button, 'Enable', 'on');
-set(handles.edge_Button, 'Enable', 'on');
-set(handles.distance_Button, 'Enable', 'on');
-set(handles.erosion_Button, 'Enable', 'on');
-set(handles.next_Button, 'Enable', 'on');
-set(handles.levelset_Button, 'Enable', 'on');
-
+% call read_files private function
+handles = read_files(handles);
 % update hObject with new handles
 guidata(hObject, handles);
 
@@ -316,17 +288,9 @@ function goto_Button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% select axes
-axes(handles.OrigImg);
-
-% set image to 200
-handles.imCount = 200;
-im = handles.img(:, :, handles.imCount);
-
-% show image
-imshow(im, []);
-
-% update handles
+% call goto private function
+handles = goto(handles);
+% update guidata
 guidata(hObject, handles);
 
 % --- Executes on button press in edge_Button.
@@ -346,16 +310,10 @@ function distance_Button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% get two user input positions
-[x,y] = ginput(2);
-
-% calculate distance between points
-distanceX = max(x) - min(x);
-distanceY = max(y) - min(y);
-distance = sqrt(distanceX^2 + distanceY^2);
-
-% output distance
-set(handles.distance_EditText, 'String', distance);
+% call distance private function
+handles = distance(handles);
+% update guidata
+guidata(hObject, handles);
 
 % --- Executes on button press in erosion_Button.
 function erosion_Button_Callback(hObject, eventdata, handles)
