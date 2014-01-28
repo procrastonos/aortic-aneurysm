@@ -88,7 +88,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 % set initial radius
-handles.radius = 0;
+handles.radius = 30;
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
