@@ -12,16 +12,17 @@
 clear all;
 close all;
 
-Img2 = imread('twocells.bmp'); % real miscroscope image of cells
-Img = dicomread(fullfile('C:\Users\JanHenric\SkyDrive\Uni\Uebungen\S5\MedBV\Aortic_aneurysm\4\', '00010220.dcm'));
-figure; imshow(Img, []);
-minImg = min(Img(:));
-maxImg = max(Img(:));
+%Img2 = imread('twocells.bmp'); % real miscroscope image of cells
+ImgInit = dicomread(fullfile('C:\Users\JanHenric\SkyDrive\Uni\Uebungen\S5\MedBV\Aortic_aneurysm\4\', '00010220.dcm'));
+figure; imshow(ImgInit, []);
+minImg = min(ImgInit(:));
+maxImg = max(ImgInit(:));
 rangeImg = maxImg - minImg;
 rect = getrect;
-Img = imcrop(Img, rect);
+Img = imcrop(ImgInit, rect);
 Img = double(Img(:,:,1));
-Img = ((double(Img) - double(minImg))/double(rangeImg))*255
+ImgInit = double(ImgInit(:,:,1)); % testing
+Img = ((double(Img) - double(minImg))/double(rangeImg))*255;
 figure; imshow(Img);
 %% parameter setting
 timestep=5;  % time step
@@ -98,5 +99,9 @@ hold on;  contour(phi, [0,0], 'r','LineWidth',2);
 str=['Final level set function, ', num2str(iter_outer*iter_inner+iter_refine), ' iterations'];
 title(str);
 axis on;
+
+[m,n] = size(phi);
+test = zeros(m,n);
+figure; imshow(test + phi, []);
 
 
