@@ -87,8 +87,10 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+radius = str2double(get(hObject, 'String'));
+
 % set initial radius
-handles.radius = 30;
+handles.radius = radius;
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -119,8 +121,9 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+sensitivity = str2double(get(hObject, 'String'));
 % set initial sensitivity value
-handles.sensitivity = 0;
+handles.sensitivity = sensitivity;
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
