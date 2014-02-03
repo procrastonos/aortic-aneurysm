@@ -17,7 +17,7 @@ Img = double(im(:,:,1));
 Img = round(((Img - minv) / range) * 255);
 
 % select axes
-axes(handles.ResImg);
+axes(handles.OrigImg);
 % show image
 imshow(Img, []);
 
@@ -29,29 +29,27 @@ Img = imcrop(Img, rect);
 %% parameter settings
 
 % time step
-timestep = 5;
+timestep = 8;
 % coefficient of the distance regularization term R(phi)
 mu = 0.2 / timestep;
 % iterator settings
 iter_inner = 5;
-iter_outer = 40;
+iter_outer = handles.levelset_iter;
 % coefficient of the weighted length term L(phi)
-lambda = 5;
+lambda = 5; % 5
 % coefficient of the weighted area term A(phi)
-alfa = 1.5;
+alfa = -1.5; % 1.5
 % paramater that specifies the width of the DiracDelta function
-epsilon = 1.5;
+epsilon = 1.5; % 1.5
 % scale parameter in Gaussian kernel
 sigma = 1.5;
 % matrix size for kernel
-hsize = 15;
+hsize = 10;  % 15
 % potential well (single or double)
 potential = 2;  
 
 %% DRLSE
 
-% select input image axis
-axes(handles.OrigImg);
 % show ROI
 imshow(Img, []);
 
@@ -78,8 +76,7 @@ rectangle('Position', rect, 'EdgeColor', 'r', ...
           'LineWidth', 2, 'LineStyle', '--');
 
 % generate the initial region R0 as two rectangles
-initialLSF(round(rect(1)):round(rect(3)), ...
-           round(rect(2)):round(rect(4))) = -c0; 
+initialLSF(round(rect(2)):round(rect(2)+rect(4)), round(rect(1)):round(rect(1)+rect(3))) = -c0;
 
 % change back to result axis
 axes(handles.ResImg);
@@ -88,7 +85,10 @@ axes(handles.ResImg);
 phi = initialLSF;
 
 % show initial zero level
-imagesc(Img, [0, 255]); axis off; axis equal; colormap(gray); hold on;  contour(phi, [0,0], 'r');
+imshow(Img, []);
+%imshow(Img_smooth, []);
+hold on;
+contour(phi, [0,0], 'r');
 title('Initial zero level contour');
 pause(1.0);
 
@@ -108,7 +108,10 @@ end
 for n=1:iter_outer
     phi = drlse_edge(phi, g, lambda, mu, alfa, epsilon, timestep, iter_inner, potentialFunction);    
     if mod(n,2)==0
-        imagesc(Img,[0, 255]); axis off; axis equal; colormap(gray); hold on;  contour(phi, [0,0], 'r');
+        imshow(Img, []);
+        %imshow(Img_smooth, []);
+        hold on;
+        contour(phi, [0,0], 'r');
         pause(0.1);
     end
 end
@@ -120,8 +123,10 @@ phi = drlse_edge(phi, g, lambda, mu, alfa, epsilon, timestep, iter_inner, potent
 
 finalLSF = phi;
 
-imagesc(Img,[0, 255]); axis off; axis equal; colormap(gray); hold on;  contour(phi, [0,0], 'r');
-hold on;  contour(phi, [0,0], 'r');
+imshow(Img, []);
+%imshow(Img_smooth, []);
+hold on;
+contour(phi, [0,0], 'r');
 str=['Final zero level contour, ', num2str(iter_outer*iter_inner+iter_refine), ' iterations'];
 title(str);
 
