@@ -33,7 +33,7 @@ timestep = 8;
 % coefficient of the distance regularization term R(phi)
 mu = 0.2 / timestep;
 % iterator settings
-iter_inner = 5;
+iter_inner = handles.levelset_iterInner;
 iter_outer = handles.levelset_iter;
 % coefficient of the weighted length term L(phi)
 lambda = 5; % 5
@@ -76,7 +76,8 @@ rectangle('Position', rect, 'EdgeColor', 'r', ...
           'LineWidth', 2, 'LineStyle', '--');
 
 % generate the initial region R0 as two rectangles
-initialLSF(round(rect(2)):round(rect(2)+rect(4)), round(rect(1)):round(rect(1)+rect(3))) = -c0;
+initialLSF(round(rect(2)):round(rect(2)+rect(4)), ...
+           round(rect(1)):round(rect(1)+rect(3))) = -c0;
 
 % change back to result axis
 axes(handles.ResImg);
@@ -106,14 +107,11 @@ end
 
 % start level set evolution
 for n=1:iter_outer
-    phi = drlse_edge(phi, g, lambda, mu, alfa, epsilon, timestep, iter_inner, potentialFunction);    
-    if mod(n,2)==0
-        imshow(Img, []);
-        %imshow(Img_smooth, []);
-        hold on;
-        contour(phi, [0,0], 'r');
-        pause(0.1);
-    end
+    phi = drlse_edge(phi, g, lambda, mu, alfa, epsilon, timestep, iter_inner, potentialFunction);
+    imshow(Img, []);
+    hold on;
+    contour(phi, [0,0], 'r');
+    pause(0.1);
 end
 
 % refine the zero level contour by further level set evolution with alfa=0
@@ -124,25 +122,61 @@ phi = drlse_edge(phi, g, lambda, mu, alfa, epsilon, timestep, iter_inner, potent
 finalLSF = phi;
 
 imshow(Img, []);
-%imshow(Img_smooth, []);
 hold on;
 contour(phi, [0,0], 'r');
-str=['Final zero level contour, ', num2str(iter_outer*iter_inner+iter_refine), ' iterations'];
+str=['Intermediate zero level contour, ', num2str(iter_outer*iter_inner+iter_refine), ' iterations'];
 title(str);
 
 % for a better view, the LSF is displayed upside down
-pause(1);
-figure;
-mesh(-finalLSF);
-hold on;  contour(phi, [0,0], 'r','LineWidth',2);
-view([-80 35]);
-str=['Final level set function, ', num2str(iter_outer*iter_inner+iter_refine), ' iterations'];
+%figure;
+%mesh(-finalLSF);
+%hold on;  contour(phi, [0,0], 'r','LineWidth',2);
+%view([-80 35]);
+%str=['Final level set function, ', num2str(iter_outer*iter_inner+iter_refine), ' iterations'];
+%title(str);
+%axis on;
+%[nrow, ncol]=size(Img);
+%axis([1 ncol 1 nrow -5 5]);
+%set(gca,'ZTick',[-3:1:3]);
+%set(gca,'FontSize',14)
+
+% change back to result axis
+%axes(handles.ResImg);
+
+pause(1.0);
+
+% set alfa back to original value
+alfa = -1.5;
+
+se = strel('disk', 10);
+erodeLSF = imerode(finalLSF, se);
+imshow(Img, []);
+%imshow(Img_smooth, []);
+hold on;
+contour(erodeLSF, [0,0], 'b');
+
+pause(1.0);
+
+phi = erodeLSF;
+% start level set evolution
+for n=1:iter_outer
+    phi = drlse_edge(phi, g, lambda, mu, alfa, epsilon, timestep, iter_inner, potentialFunction);
+    imshow(Img, []);
+    hold on;
+    contour(phi, [0,0], 'g');
+    pause(0.1);
+end
+
+% refine the zero level contour by further level set evolution with alfa=0
+alfa=0;
+iter_refine = 10;
+phi = drlse_edge(phi, g, lambda, mu, alfa, epsilon, timestep, iter_inner, potentialFunction);
+
+imshow(Img, []);
+hold on;
+contour(phi, [0,0], 'g');
+str=['Final zero level contour, ', num2str(iter_outer*iter_inner+iter_refine), ' iterations'];
 title(str);
-axis on;
-[nrow, ncol]=size(Img);
-axis([1 ncol 1 nrow -5 5]);
-set(gca,'ZTick',[-3:1:3]);
-set(gca,'FontSize',14)
 
 % return handle struct
 h = handles;
