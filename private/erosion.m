@@ -17,6 +17,9 @@ axes(handles.ResImg);
 % show image
 imshow(img_er3, []);
 
+% update handles
+handles.img = img_er3;
+
 % return handle struct
 h = handles;
 
