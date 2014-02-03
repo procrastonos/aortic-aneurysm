@@ -22,7 +22,7 @@ function varargout = aneurysm(varargin)
 
 % Edit the above text to modify the response to help aneurysm
 
-% Last Modified by GUIDE v2.5 28-Jan-2014 14:23:59
+% Last Modified by GUIDE v2.5 03-Feb-2014 10:34:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -155,6 +155,22 @@ end
 handles.levelset_iter = 30;
 guidata(hObject, handles);
 
+% --- Executes during object creation, after setting all properties.
+function iterInner_Edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to iterInner_Edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% set initial goto value
+handles.levelset_iterInner = 5;
+guidata(hObject, handles);
+
 %% Edit callbacks
 
 function radius_Edit_Callback(hObject, eventdata, handles)
@@ -242,6 +258,21 @@ iter = str2num(get(hObject, 'String'));
 
 % update handles
 handles.levelset_iter = iter;
+guidata(hObject, handles);
+
+function iterInner_Edit_Callback(hObject, eventdata, handles)
+% hObject    handle to iterInner_Edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of iterInner_Edit as text
+%        str2double(get(hObject,'String')) returns contents of iterInner_Edit as a double
+
+% get iteration value from edit field
+iterInner = str2num(get(hObject, 'String'));
+
+% update handles
+handles.levelset_iterInner = iterInner;
 guidata(hObject, handles);
 
 %% Button callbacks
