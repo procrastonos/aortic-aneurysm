@@ -10,6 +10,7 @@ handles.files = files;
 
 img = [];
 pinfo = [];
+chain = [];
 
 % read images
 %for k = 1:size(files, 1)
@@ -32,14 +33,18 @@ end
 handles.img = img;
 handles.pinfo = pinfo;
 
-% select axes
+% add current image to processing chain
+chain = cat(3, chain, zeros(512));
+chain = cat(3, chain, img(:, :, 1));
+handles.chain = chain;
+
+% show original image
 axes(handles.OrigImg);
+imshow(chain(:, :, end - 1), []);
 
-% select image
-im = img(:, :, 1);
-
-% show image
-imshow(im, []);
+% show processed image
+axes(handles.ResImg);
+imshow(chain(:, :, end), []);
 
 % activate GUI elements
 set(handles.threshold_Button, 'Enable', 'on');
@@ -52,6 +57,7 @@ set(handles.distance_Button, 'Enable', 'on');
 set(handles.erosion_Button, 'Enable', 'on');
 set(handles.next_Button, 'Enable', 'on');
 set(handles.levelset_Button, 'Enable', 'on');
+set(handles.process_Button, 'Enable', 'on');
 
 % return handle struct
 h = handles;
