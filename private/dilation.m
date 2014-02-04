@@ -2,16 +2,11 @@
 function h = dilation(handles)
 
 % get image
-im = handles.img(:, :, handles.imCount);
+im = handles.chain(:, :, end);
 
-%tr = handles.tr;
-%se = strel('disk', 1);
-%img(img <= tr) = 0;
-%im_dl = imdilate(img,se);
-%axes(handles.OrigImg);
-%imshow(im_dl, []);
-%handles.img = im_dl;
-%guidata(hObject, handles);
+% show image on original image axes
+axes(handles.OrigImg);
+imshow(im, []);
 
 %3D dilation
 se3(:,:,1) = [0 0 0;0 1 0; 0 0 0];
@@ -19,17 +14,16 @@ se3(:,:,2) = [0 1 0;1 1 1; 0 1 0];
 se3(:,:,3) = [0 0 0;0 1 0; 0 0 0];
 
 % dilate image
-img_dl3 = imdilate(im, se3);
+im = imdilate(im, se3);
 
-% select axes
+% show thresholded image on result axes
 axes(handles.ResImg);
+imshow(im, []);
 
-% show image
-imshow(img_dl3, []);
+% add thresholded image to processing chain
+handles.chain = cat(3, handles.chain, im);
 
-% update handles
-handles.img = img_dl3;
-
+% return handle struct
 h = handles;
 
 end
