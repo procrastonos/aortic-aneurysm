@@ -1,33 +1,30 @@
 %% --- finds circle-like structures
-function h = circle(handles)
-% select image
-Img = handles.img(:, :, handles.imCount);
+function h = circle(handles, sensitivity, radius, variance)
 
-% select axes
+% get image
+im = handles.chain(:, :, end);
+
+% show image in result axes
 axes(handles.ResImg);
-
-% show image
-imshow(Img, []);
+imshow(im, []);
 
 % get ROI from user
 rect = getrect;
 % crop image to ROI
-im = imcrop(Img, rect);
+im = imcrop(im, rect);
 
-% get sensitivity value
-sensitivity = handles.sensitivity;
-
-% get radius
-radius = handles.radius;
+% show cropped region
+imshow(im, []);
 
 % perform circle matching
-[centers,radii] = imfindcircles(im, [radius - 8 radius + 8], 'Sensitivity', sensitivity);
-
-imshow(im, []);
+[centers,radii] = imfindcircles(im, [radius - round(variance / 2) ...
+                                     radius + round(variance / 2)], ...
+                                     'Sensitivity', sensitivity);
 
 % draw circles
 viscircles(centers, radii);
 
+% return handle struct
 h = handles;
 
 end

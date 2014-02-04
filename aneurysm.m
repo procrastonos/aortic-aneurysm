@@ -332,8 +332,14 @@ function circle_Button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% get sensitivity value
+sensitivity = handles.sensitivity;
+% get radius
+radius = handles.radius;
+% set radius variance (range)
+variance = 16;
 % call circle finding private function
-handles = circle(handles);
+handles = circle(handles, sensitivity, radius, variance);
 % update guidata
 guidata(hObject, handles);
 
