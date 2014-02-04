@@ -22,7 +22,7 @@ function varargout = aneurysm(varargin)
 
 % Edit the above text to modify the response to help aneurysm
 
-% Last Modified by GUIDE v2.5 03-Feb-2014 10:34:40
+% Last Modified by GUIDE v2.5 03-Feb-2014 11:48:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -308,8 +308,10 @@ function threshold_Button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% get threshold value
+tr = handles.tr;
 % call threshold private function
-handles = threshold(handles);
+handles = threshold(handles, tr);
 % update guidata
 guidata(hObject, handles);
 
@@ -386,6 +388,8 @@ function erosion_Button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % 3D erosion
 
+% select image
+im = handles.img(:, :, handles.imCount);
 % call erosion private function
 handles = erosion(handles);
 % update guidata
@@ -399,5 +403,16 @@ function levelset_Button_Callback(hObject, eventdata, handles)
 
 % call level set private function
 handles = levelset(handles);
+% update guidata
+guidata(hObject, handles);
+
+% --- Executes on button press in process_Button.
+function process_Button_Callback(hObject, eventdata, handles)
+% hObject    handle to process_Button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% call level set private function
+handles = process(handles);
 % update guidata
 guidata(hObject, handles);
