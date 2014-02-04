@@ -1,22 +1,22 @@
 %% --- sets threshold of image
-function h = threshold(handles)
-% get threshold value
-tr = handles.tr;
+function h = threshold(handles, tr)
 
-% select image
-trmask = handles.img(:, :, handles.imCount);
+% get image
+im = handles.chain(:, :, end);
+
+% show image on original image axes
+axes(handles.OrigImg);
+imshow(im, []);
 
 % apply threshold
-trmask(trmask <= tr) = 0;
+im(im <= tr) = 0;
 
-% select axes
+% show thresholded image on result axes
 axes(handles.ResImg);
+imshow(im, []);
 
-% show image
-imshow(trmask, []);
-
-% update handles
-handles.thresh = trmask;
+% add thresholded image to processing chain
+handles.chain = cat(3, handles.chain, im);
 
 % return handle struct
 h = handles;
