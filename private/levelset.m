@@ -1,8 +1,10 @@
 %% --- level-set active contour algorithm
-function h = levelset(handles)
+function h = levelset(handles, iter_inner, iter_outer, seed)
+
+%% Preparation
 
 % get image
-im = handles.img(:,:,handles.imCount);
+im = handles.chain(:, :, end);
 
 % get min and max values of image
 maxv = double(max(im(:)));
@@ -12,19 +14,25 @@ minv = double(min(im(:)));
 range = maxv - minv;
 
 % convert image to double
-Img = double(im(:,:,1));
+im = double(im(:,:,1));
 % reduce value range to 0..256
-Img = round(((Img - minv) / range) * 255);
+im = round(((im - minv) / range) * 255);
 
-% select axes
+% show image on original image axes
 axes(handles.OrigImg);
-% show image
-imshow(Img, []);
+imshow(im, []);
 
+% show image again on result axes
+axes(handles.ResImg);
+imshow(im, []);
+
+%% Get ROI
 % get ROI from user
 rect = getrect;
 % crop image to ROI
-Img = imcrop(Img, rect);
+im = imcrop(im, rect);
+% show ROI
+imshow(im, []);
 
 %% parameter settings
 
@@ -32,12 +40,9 @@ Img = imcrop(Img, rect);
 timestep = 8;
 % coefficient of the distance regularization term R(phi)
 mu = 0.2 / timestep;
-% iterator settings
-iter_inner = handles.levelset_iterInner;
-iter_outer = handles.levelset_iter;
 % coefficient of the weighted length term L(phi)
 lambda = 5; % 5
-% coefficient of the weighted area term A(phi)
+% coefficient of the weighted area term A(phi) (growing direction)
 alfa = -1.5; % 1.5
 % paramater that specifies the width of the DiracDelta function
 epsilon = 1.5; % 1.5
@@ -50,13 +55,10 @@ potential = 2;
 
 %% DRLSE
 
-% show ROI
-imshow(Img, []);
-
 % Gaussian kernel
 G = fspecial('gaussian', hsize, sigma); 
 % smooth image by Gaussiin convolution
-Img_smooth = conv2(Img, G, 'same');
+Img_smooth = conv2(im, G, 'same');
 
 % some kind of gradient
 [Ix, Iy] = gradient(Img_smooth);
@@ -66,7 +68,7 @@ g = 1 ./ (1 + f);
 
 % initialize LSF as binary step function
 c0 = 2;
-initialLSF = c0 * ones(size(Img));
+initialLSF = c0 * ones(size(im));
 
 % get initial rectangle
 rect = getrect;
@@ -86,7 +88,7 @@ axes(handles.ResImg);
 phi = initialLSF;
 
 % show initial zero level
-imshow(Img, []);
+imshow(im, []);
 %imshow(Img_smooth, []);
 hold on;
 contour(phi, [0,0], 'r');
@@ -108,7 +110,7 @@ end
 % start level set evolution
 for n=1:iter_outer
     phi = drlse_edge(phi, g, lambda, mu, alfa, epsilon, timestep, iter_inner, potentialFunction);
-    imshow(Img, []);
+    imshow(im, []);
     hold on;
     contour(phi, [0,0], 'r');
     pause(0.1);
@@ -121,47 +123,37 @@ phi = drlse_edge(phi, g, lambda, mu, alfa, epsilon, timestep, iter_inner, potent
 
 finalLSF = phi;
 
-imshow(Img, []);
+%% Show result
+
+imshow(im, []);
 hold on;
 contour(phi, [0,0], 'r');
 str=['Intermediate zero level contour, ', num2str(iter_outer*iter_inner+iter_refine), ' iterations'];
 title(str);
 
-% for a better view, the LSF is displayed upside down
-%figure;
-%mesh(-finalLSF);
-%hold on;  contour(phi, [0,0], 'r','LineWidth',2);
-%view([-80 35]);
-%str=['Final level set function, ', num2str(iter_outer*iter_inner+iter_refine), ' iterations'];
-%title(str);
-%axis on;
-%[nrow, ncol]=size(Img);
-%axis([1 ncol 1 nrow -5 5]);
-%set(gca,'ZTick',[-3:1:3]);
-%set(gca,'FontSize',14)
-
-% change back to result axis
-%axes(handles.ResImg);
-
 pause(1.0);
+
+%% Erode contour
 
 % set alfa back to original value
 alfa = -1.5;
 
-se = strel('disk', 10);
+se = strel('disk', 5);
 erodeLSF = imerode(finalLSF, se);
-imshow(Img, []);
+imshow(im, []);
 %imshow(Img_smooth, []);
 hold on;
 contour(erodeLSF, [0,0], 'b');
 
 pause(1.0);
 
+%% Start second DRLSE
+
 phi = erodeLSF;
 % start level set evolution
 for n=1:iter_outer
     phi = drlse_edge(phi, g, lambda, mu, alfa, epsilon, timestep, iter_inner, potentialFunction);
-    imshow(Img, []);
+    imshow(im, []);
     hold on;
     contour(phi, [0,0], 'g');
     pause(0.1);
@@ -172,11 +164,14 @@ alfa=0;
 iter_refine = 10;
 phi = drlse_edge(phi, g, lambda, mu, alfa, epsilon, timestep, iter_inner, potentialFunction);
 
-imshow(Img, []);
+imshow(im, []);
 hold on;
 contour(phi, [0,0], 'g');
 str=['Final zero level contour, ', num2str(iter_outer*iter_inner+iter_refine), ' iterations'];
 title(str);
+
+% add thresholded image to processing chain
+handles.chain = cat(3, handles.chain, im);
 
 % return handle struct
 h = handles;

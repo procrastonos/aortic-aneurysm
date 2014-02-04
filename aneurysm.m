@@ -407,8 +407,11 @@ function levelset_Button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% get iteration values
+iter_inner = handles.levelset_iterInner;
+iter_outer = handles.levelset_iter;
 % call level set private function
-handles = levelset(handles);
+handles = levelset(handles, iter_inner, iter_outer);
 % update guidata
 guidata(hObject, handles);
 
