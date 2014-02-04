@@ -1,20 +1,24 @@
 %% --- find edges in image
 function h = edge(handles)
 
-% select image
-im = handles.img(:, :, handles.imCount);
+% get image
+im = handles.chain(:, :, end);
+
+% show image on original image axes
+axes(handles.OrigImg);
+imshow(im, []);
 
 % select edge detection filter
 h = fspecial('Prewitt');
-
 % apply edge detection filter
-imfil = filter2(h, im, 'same');
+im = filter2(h, im, 'same');
 
-% select output axes
+% show thresholded image on result axes
 axes(handles.ResImg);
+imshow(im, []);
 
-% show image
-imshow(imfil, []);
+% add thresholded image to processing chain
+handles.chain = cat(3, handles.chain, im);
 
 % return handle struct
 h = handles;
