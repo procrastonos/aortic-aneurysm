@@ -1,5 +1,6 @@
 %% --- find edges in image
 function h = edge(handles)
+
 % select image
 im = handles.img(:, :, handles.imCount);
 
@@ -14,12 +15,6 @@ axes(handles.ResImg);
 
 % show image
 imshow(imfil, []);
-
-% select image
-im = handles.img(:, :, handles.imCount);
-
-% select output axes
-axes(handles.ResImg);
 
 % return handle struct
 h = handles;
