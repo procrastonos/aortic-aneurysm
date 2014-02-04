@@ -9,7 +9,8 @@ distanceY = max(y) - min(y);
 distance = sqrt(distanceX^2 + distanceY^2);
 
 % select axis
-axes(handles.OrigImg);
+%axes(handles.OrigImg);
+axes(gca);
 % draw line
 line(x,y);
 
