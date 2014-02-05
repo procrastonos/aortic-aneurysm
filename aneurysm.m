@@ -22,7 +22,7 @@ function varargout = aneurysm(varargin)
 
 % Edit the above text to modify the response to help aneurysm
 
-% Last Modified by GUIDE v2.5 03-Feb-2014 11:48:05
+% Last Modified by GUIDE v2.5 04-Feb-2014 20:40:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -407,11 +407,48 @@ function levelset_Button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% get image
+im = handles.chain(:, :, end);
+
+% show image on result axes
+axes(handles.ResImg);
+imshow(im, []);
+
+% get ROI from user
+rect = getrect;
+
+% move current image to original image view
+axes(handles.OrigImg);
+imshow(im, []);
+% show the ROI rectangle
+rectangle('Position', rect, 'EdgeColor', 'r');
+
+% crop image to ROI
+im = imcrop(im, rect);
+% show ROI
+axes(handles.ResImg);
+imshow(im, []);
+
+% get initial rectangle (seed)
+rect = getrect;
+% show the rectangle
+rectangle('Position', rect, 'EdgeColor', 'r');
+
+% initialize LSF as binary step function
+c0 = 2;
+seed = c0 * ones(size(im));
+
+% generate the initial region R0 as two rectangles
+seed(round(rect(2)):round(rect(2)+rect(4)), ...
+     round(rect(1)):round(rect(1)+rect(3))) = -c0;
+
 % get iteration values
 iter_inner = handles.levelset_iterInner;
 iter_outer = handles.levelset_iter;
-% call level set private function
-handles = levelset(handles, iter_inner, iter_outer);
+
+% call level set function
+handles = levelset(handles, im, iter_inner, iter_outer, seed);
+
 % update guidata
 guidata(hObject, handles);
 
