@@ -25,7 +25,7 @@ if handles.step >= 1 && handles.step <= 6
     % save eroded image result for later
     handles.eroded = handles.chain(:, :, end);
     hold on;
-    title(['Erosion pass ', num2str(handles.step - 1)]);
+    title(['Erosion pass ', num2str(handles.step)]);
 end
 
 %% ROI selection
@@ -85,17 +85,17 @@ if handles.step == 9
     iter_outer = handles.levelset_iter;
 
     % call level set private function
-    handles = levelset(handles, im, iter_inner, iter_outer, seed);
+    handles = levelset(handles, handles.cropped, iter_inner, iter_outer, seed);
 
     % define structure element for erosion
     se = strel('disk', 5);
     % erode contour
-    erodeLSF = imerode(handles.contour, se);
+    handles.erodeLSF = imerode(handles.contour, se);
     % show image
     imshow(im, []);
     hold on;
     % and draw contour in blue
-    contour(erodeLSF, [0,0], 'b');
+    contour(handles.erodeLSF, [0,0], 'b');
     % wait for a moment
 end
 
@@ -103,7 +103,7 @@ end
 
 if handles.step == 10
     % call level set function a second time
-    handles = levelset(handles, im, iter_inner, iter_outer, erodeLSF);
+    handles = levelset(handles, im, iter_inner, iter_outer, handles.erodeLSF);
 end
     
 % increment step counter
