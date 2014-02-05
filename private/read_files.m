@@ -59,6 +59,17 @@ set(handles.next_Button, 'Enable', 'on');
 set(handles.levelset_Button, 'Enable', 'on');
 set(handles.process_Button, 'Enable', 'on');
 
+% initialize process step counter
+handles.step = 0;
+
+% set initial threshold value
+% get value of input field
+tr = handles.tr;
+
+% update handles
+im = handles.img(:,:, handles.imCount);
+handles.tr = tr * max(im(:));
+
 % return handle struct
 h = handles;
 

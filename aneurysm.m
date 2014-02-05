@@ -106,7 +106,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 % set initial value
-handles.tr = 0;
+handles.tr = 0.5;
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
