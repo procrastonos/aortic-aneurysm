@@ -155,7 +155,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 % set initial goto value
-handles.levelset_iter = 30;
+handles.levelset_iter = 40;
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -171,7 +171,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 % set initial goto value
-handles.levelset_iterInner = 5;
+handles.levelset_iterInner = 8;
 guidata(hObject, handles);
 
 %% Edit callbacks

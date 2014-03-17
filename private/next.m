@@ -33,6 +33,7 @@ imshow(chain(:, :, end - 1), []);
 
 % show processed image
 axes(handles.ResImg);
+axis auto;
 imshow(chain(:, :, end), []);
 
 % update handles

@@ -11,21 +11,24 @@ if handles.step == 0
     % save thresholded image for later
     handles.thresholded = handles.chain(:, :, end);
     hold on;
-    str = ['Threshold image at ', ...
-          num2str((handles.tr/max(handles.orig(:))) * 100.0), ...
-          '% brightness']
+    str = ['Threshold image at ', num2str(handles.tr)];
     title(str);
 end
 
 %% Eroding
 
-if handles.step >= 1 && handles.step <= 6
+if handles.step >= 1 && handles.step <= 5
     % perform erosion
     handles = erosion(handles);
     % save eroded image result for later
     handles.eroded = handles.chain(:, :, end);
     hold on;
     title(['Erosion pass ', num2str(handles.step)]);
+    
+end
+
+if handles.step == 6
+    handles.step = handles.step + 1;
 end
 
 %% ROI selection
@@ -40,12 +43,13 @@ if handles.step == 7
     % show image again on result axes
     axes(handles.ResImg);
     imshow(handles.orig, []);
-    hold on;
     title('Please select region of interest...');
 
     % get ROI from user
     handles.rect = getrect;
-    rectangle('Position', handles.rect, 'EdgeColor', 'r');
+     
+    % show ROI
+    rectangle('Position', handles.rect, 'EdgeColor', 'r', 'LineStyle','--');
 end
 
 %% ROI cropping
@@ -55,17 +59,23 @@ if handles.step == 8
     axes(handles.OrigImg);
     % show eroded image with ROI
     imshow(handles.eroded, []);
+    hold on;
+    title('Preprocessing result with ROI');
     % show the rectangle
-    rectangle('Position', handles.rect, 'EdgeColor', 'r');
-
+    rectangle('Position', handles.rect, 'EdgeColor', 'b', 'LineStyle','--');
+    
     % crop image to ROI
     handles.cropped = imcrop(handles.orig, handles.rect);
     handles.mask = imcrop(handles.eroded, handles.rect);
+  
     % show ROI
     axes(handles.ResImg);
-    imshow(handles.cropped, [], 'XData', [0 1.0], 'YData', [0 1.0]);
-
-    contour(handles.mask, [0,0], 'r');
+    [nrow, ncol] = size(handles.cropped);
+    axis([1 ncol 1 nrow -5 5]);
+    cla;
+    imshow(handles.cropped, []);
+    hold on;
+    title('Image cropped to ROI');
 end
 
 %% DRLSE
@@ -73,37 +83,44 @@ end
 if handles.step == 9
     % initialize LSF as binary step function
     c0 = 2;
-    seed = c0 * ones(size(handles.chain(:, :, end)));
+    handles.seed = c0 * ones(size(handles.cropped));
 
-    % generate the initial region R0 as two rectangles
-    %seed(round(rect(2)):round(rect(2)+rect(4)), ...
-    %     round(rect(1)):round(rect(1)+rect(3))) = -c0;
-    seed(handles.mask > 0) = -c0;
+    % 
+    handles.seed(handles.mask > 0) = -c0;
+    
+    contour(handles.seed, [0,0], 'b');
+    title('Initial zero level contour');
+end
 
+if handles.step == 10
     % get iteration values
     iter_inner = handles.levelset_iterInner;
     iter_outer = handles.levelset_iter;
 
     % call level set private function
-    handles = levelset(handles, handles.cropped, iter_inner, iter_outer, seed);
+    handles = levelset(handles, handles.cropped, iter_inner, iter_outer, handles.seed);
+end
 
+if handles.step == 11
     % define structure element for erosion
     se = strel('disk', 5);
     % erode contour
     handles.erodeLSF = imerode(handles.contour, se);
     % show image
-    imshow(im, []);
+    imshow(handles.cropped, []);
     hold on;
+    title('Eroded contour');
     % and draw contour in blue
     contour(handles.erodeLSF, [0,0], 'b');
-    % wait for a moment
 end
 
 %% Second DRLSE pass
 
-if handles.step == 10
+if handles.step == 12
+    iter_inner = handles.levelset_iterInner;
+    iter_outer = handles.levelset_iter;
     % call level set function a second time
-    handles = levelset(handles, im, iter_inner, iter_outer, handles.erodeLSF);
+    handles = levelset(handles, handles.cropped, iter_inner, iter_outer, handles.erodeLSF);
 end
     
 % increment step counter
