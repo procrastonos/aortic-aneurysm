@@ -1,23 +1,27 @@
-
 \documentclass[a4paper]{scrartcl}
 
 \usepackage[utf8]{inputenc}
+\usepackage{titlesec}
+\usepackage{hyperref}
+
+\titleformat{\section}{\huge\scshape}{\thesection}{1em}{}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 
 \begin{document}
-Segmentation of an aneurysm of the abdominal Aorta
 
+\input{./title.tex}
 
-
-\section{Task}
+\section*{Task}
 
 The task was to segment the Aorta wall around an aneurysm of the abdominal
 aorta using an algorithm implemented in Matlab. 
 
-Here we will briefly describe our initial approaches, give a detailed
+This document will briefly describe our initial approaches, give a detailed
 description of our final implementation and suggest improvements to our
 algorithms.
 
-\section{Approach}
+\section*{Approach}
 
 The first idea was to use a simple threshold to segment the bright parts of the
 contrast-enhanced aorta. While the inner part of the aorta shows high contrast,
@@ -25,19 +29,32 @@ the outer part of the aorta does not, making this approach valuable for finding
 contrast-enhanced arteries but not the aneurysm itsself.
 
 Due to the high contrast of the aortic blood finding the egde of the aorta
-should be relatively easy 
+using classic edge-detection algorithms should have been relatively easy. 
+However the wall of the aorta prooved to be too similar to the surrounding 
+tissue and changing parameters of the algorithm only resulted in either too
+many or to few detected edges.
 
+Due to the mostly very regular and circular shape of the aorta we quickly 
+considered using a knowledge-based approach to edge-detection. The idea was to
+use a Hough Transform to detect circular shapes within a certain range of
+diameters. Given a slice with high contrast along the aorta wall, a manually
+defined region of interest containing the aorta and the correct range of radii
+this approach did indeed find the aorta wall quite robustly. Extrapolating from
+strong matches from one sclice to the next would probably allow for reasonable
+results. However, the necessety for manual interaction, as well as the quite
+haphazard assumption of a circular aorta led us to disregard this approach.
 
-Edge detection
-Region growing
-Fuzzy connectedness
-Hough Transform
+The most promising approach, and the one we chose for our final solution, was
+to (manually) define a region within the aorta and use a region growing
+algorithm to match the actual border of the aneurysm. Due to the very
+inconsistent gradient of the edge aorta wall we quickly decided to use the a
+level set evolution algorithm, even though the standard implementations didn't
+produce desireable results. 
 
-Level set evolution
+\section*{Solution}
 
-DRLSE
-
-\section{Solution}
+After some research we came upon the Distance Regularized Level Set Evolution
+(DRLSE) algorithm by ...
 
 Thresholding
 Erosion
@@ -45,9 +62,18 @@ DRLSE
 Contour erosion
 second DRLSE
 
+\section*{Suggestions for further work}
 
+\section*{Appendix: Structure of implementation}
 
-\section{Suggestions for further work}
+The Matlab implementation of our segmentation algorithm can be found on github
+at \url{https://github.com/procrastonos/aortic-aneurysm}.
 
+While the GUI is implemented within the \texttt{aneurysm.m} file, all functions
+implementations lay in their own 'm' files within the \emph{private}-folder.
+The titles of the files should be self-explanatory. The functions of interest
+are \texttt{process.m}, \texttt{levelset.m} and \texttt{circle.m}, which in
+turn contain the final algorithm, the DRLSE and the circle matching via
+Hough-Transform.
 
 \end{document}
