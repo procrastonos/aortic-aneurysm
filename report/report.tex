@@ -57,11 +57,23 @@ produce desireable results.
 After some research we came upon the Distance Regularized Level Set Evolution
 (DRLSE) algorithm by Chunming Li~\cite{Li_TIP08}.
 
-Thresholding
-Erosion
-DRLSE
-Contour erosion
-second DRLSE
+At first a region of interest has to be selected. Within this an inital region is chosen and being handed to the DRLSE method.
+The level set method grows until the boundary matches the next edge to find.
+
+Therefore two integers are set, the number of inner iterations and the number of outer iterations.
+The number of outer iterations defines how often the level set method is used, while the number of inner iterations defines how many steps each level set method computes.
+
+In our implementation the level set method is used twice.
+First a threshold is used to get rid of the unwanted structures.
+In the next step the result of the threshold is being eroded to remove remaining small structures.
+After this only the high contrast area of the aorta and some parts of the spine remain.
+In the next step the region of interest has to be selected from the original and the boundary of the eroded aorta is shown within.
+
+This boundary is then used to initalize the fist level set method.
+As a result of this the full high contrasted, inner part of the aneurysm is segmented.
+Because a next level set method would converge to the same boundary the contour is dilated. This is done by an erosion method because the result of the level set method comes in an inverted form.
+For the second level set method this new dilated boundary is used to initialize.
+After the region growing the resulting boundary now matches the aorta wall.
 
 \section*{Suggestions for further work}
 
