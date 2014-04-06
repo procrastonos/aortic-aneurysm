@@ -1,6 +1,7 @@
 \documentclass[a4paper]{scrartcl}
 
 \usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
 \usepackage{titlesec}
 \usepackage{hyperref}
 
@@ -54,7 +55,7 @@ produce desireable results.
 \section*{Solution}
 
 After some research we came upon the Distance Regularized Level Set Evolution
-(DRLSE) algorithm by ...
+(DRLSE) algorithm by Chunming Li~\cite{Li_TIP08}.
 
 Thresholding
 Erosion
@@ -75,5 +76,8 @@ The titles of the files should be self-explanatory. The functions of interest
 are \texttt{process.m}, \texttt{levelset.m} and \texttt{circle.m}, which in
 turn contain the final algorithm, the DRLSE and the circle matching via
 Hough-Transform.
+
+\bibliographystyle{alpha}
+\bibliography{ref}
 
 \end{document}
