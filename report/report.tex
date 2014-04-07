@@ -15,7 +15,7 @@
 
 \section*{Task}
 
-The task was to segment the Aorta wall around an aneurysm of the abdominal
+The task was to segment the aorta wall around an aneurysm of the abdominal
 aorta using an algorithm implemented in Matlab. 
 
 This document will briefly describe our initial approaches, give a detailed
@@ -24,20 +24,23 @@ algorithms.
 
 \section*{Approach}
 
+\subsection*{Thresholding}
 The first idea was to use a simple threshold to segment the bright parts of the
 contrast-enhanced aorta. While the inner part of the aorta shows high contrast,
 the outer part of the aorta does not, making this approach valuable for finding
 contrast-enhanced arteries but not the aneurysm itsself.
 
+\subsection*{Edge-detection}
 Due to the high contrast of the aortic blood finding the egde of the aorta
 using classic edge-detection algorithms should have been relatively easy. 
 However the wall of the aorta prooved to be too similar to the surrounding 
 tissue and changing parameters of the algorithm only resulted in either too
 many or to few detected edges.
 
+\subsection*{Circle-matching}
 Due to the mostly very regular and circular shape of the aorta we quickly 
 considered using a knowledge-based approach to edge-detection. The idea was to
-use a Hough Transform to detect circular shapes within a certain range of
+use a Hough Transform to detect circular shapes with a certain range of
 diameters. Given a slice with high contrast along the aorta wall, a manually
 defined region of interest containing the aorta and the correct range of radii
 this approach did indeed find the aorta wall quite robustly. Extrapolating from
@@ -45,6 +48,7 @@ strong matches from one sclice to the next would probably allow for reasonable
 results. However, the necessety for manual interaction, as well as the quite
 haphazard assumption of a circular aorta led us to disregard this approach.
 
+\subsection*{Region-growing}
 The most promising approach, and the one we chose for our final solution, was
 to (manually) define a region within the aorta and use a region growing
 algorithm to match the actual border of the aneurysm. Due to the very
@@ -53,29 +57,38 @@ level set evolution algorithm, even though the standard implementations didn't
 produce desireable results. 
 
 \section*{Solution}
-
 After some research we came upon the Distance Regularized Level Set Evolution
-(DRLSE) algorithm by Chunming Li~\cite{Li_TIP08}.
+(DRLSE) algorithm by Chunming Li~\cite{Li_TIP08}. This algorithm prooved to be
+robust enough to reliably find the irregular edge of the aorta as well as the
+inner edge of the aneurysm.
 
-At first a region of interest has to be selected. Within this an inital region is chosen and being handed to the DRLSE method.
-The level set method grows until the boundary matches the next edge to find.
+\subsection*{Process}
+Before beginning the actual segmentation process, the region of interest has to
+be selected. This is needed mainly due to the fact that the DRLSE is relatively
+computationally intensive, and selecting a ROI significantly reduces execution
+time. Within the ROI an inital region is chosen and handed to the DRLSE method.
+The level set method then grows until the boundary matches the next edge to 
+find.
 
-Therefore two integers are set, the number of inner iterations and the number of outer iterations.
-The number of outer iterations defines how often the level set method is used, while the number of inner iterations defines how many steps each level set method computes.
+The DRLSE method is controlled by two integer values, the number of inner 
+iterations and the number of outer iterations. The number of outer iterations 
+defines how often the level set method is applied, while the number of inner 
+iterations defines how many steps each level set method computes.
 
-In our implementation the level set method is used twice.
-First a threshold is used to get rid of the unwanted structures.
-In the next step the result of the threshold is being eroded to remove remaining small structures.
-After this only the high contrast area of the aorta and some parts of the spine remain.
-In the next step the region of interest has to be selected from the original and the boundary of the eroded aorta is shown within.
+In our implementation the level set method is used twice. First a threshold is
+used to get rid of the unwanted structures. In the next step the result of the
+threshold is being eroded to remove remaining small structures. After this
+only the high contrast area of the aorta and some parts of the spine remain.
+In the next step the region of interest has to be selected from the original
+and the boundary of the eroded aorta is shown within.
 
-This boundary is then used to initalize the fist level set method.
-As a result of this the full high contrasted, inner part of the aneurysm is segmented.
-Because a next level set method would converge to the same boundary the contour is dilated. This is done by an erosion method because the result of the level set method comes in an inverted form.
-For the second level set method this new dilated boundary is used to initialize.
-After the region growing the resulting boundary now matches the aorta wall.
-
-\section*{Suggestions for further work}
+This boundary is then used to initalize the fist level set method. As a result
+of this the full high contrasted, inner part of the aneurysm is segmented.
+Because a next level set method would converge to the same boundary the contour
+is dilated. This is done by an erosion method because the result of the level
+set method comes in an inverted form. For the second level set method this new
+dilated boundary is used to initialize. After the region growing the resulting
+boundary now matches the aorta wall.
 
 \section*{Appendix: Structure of implementation}
 
@@ -89,7 +102,6 @@ are \texttt{process.m}, \texttt{levelset.m} and \texttt{circle.m}, which in
 turn contain the final algorithm, the DRLSE and the circle matching via
 Hough-Transform.
 
-\bibliographystyle{alpha}
-\bibliography{ref}
+\bibliographystyle{alpha} \bibliography{ref}
 
 \end{document}
